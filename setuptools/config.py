@@ -331,7 +331,9 @@ class ConfigHandler:
             return value
 
         spec = value[len(include_directive):]
-        filepaths = (os.path.abspath(path.strip()) for path in spec.split(','))
+        filepaths = (
+            os.path.realpath(path.strip()) for path in spec.split(',')
+        )
         return '\n'.join(
             cls._read_file(path)
             for path in filepaths

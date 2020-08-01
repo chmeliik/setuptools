@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import contextlib
+import os
 
 import pytest
 
@@ -201,6 +202,20 @@ class TestMetadata:
             '[metadata]\n'
             'long_description = file: ../../README\n'
         )
+
+        with get_dist(tmpdir, parse=False) as dist:
+            with pytest.raises(DistutilsOptionError):
+                dist.parse_config_files()  # file: out of sandbox
+
+    def test_symlink_sandboxed(self, tmpdir):
+
+        fake_env(
+            tmpdir,
+            '[metadata]\n'
+            'long_description = file: innocent_file.txt\n'
+        )
+
+        os.symlink('/etc/shadow', tmpdir.join('innocent_file.txt').strpath)
 
         with get_dist(tmpdir, parse=False) as dist:
             with pytest.raises(DistutilsOptionError):
