@@ -343,7 +343,13 @@ class ConfigHandler:
 
     @staticmethod
     def _assert_local(filepath):
-        if not filepath.startswith(os.getcwd()):
+        current_directory = os.getcwd()
+        # Avoid producing a confusing error message for 'file: .'
+        if filepath == current_directory:
+            return
+        # Append os.sep to make sure we exactly match the current directory
+        current_directory = os.path.join(current_directory, '')
+        if not filepath.startswith(current_directory):
             raise DistutilsOptionError(
                 '`file:` directive can not access %s' % filepath)
 

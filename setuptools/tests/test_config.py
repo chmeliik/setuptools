@@ -221,6 +221,24 @@ class TestMetadata:
             with pytest.raises(DistutilsOptionError):
                 dist.parse_config_files()  # file: out of sandbox
 
+    def test_sibling_sandboxed(self, tmpdir):
+        # Name of sibling dir starts with name of main dir, when checking that
+        # file is local, the sibling dir must not be confused for the main one
+        main_dir = tmpdir.join('sever').mkdir()
+        sibling_dir = tmpdir.join('severus').mkdir()
+
+        fake_env(
+            main_dir,
+            '[metadata]\n'
+            'long_description = file: ../severus/password.txt\n'
+        )
+
+        sibling_dir.join('password.txt').write('LilyPotter')
+
+        with get_dist(main_dir, parse=False) as dist:
+            with pytest.raises(DistutilsOptionError):
+                dist.parse_config_files()  # file: out of sandbox
+
     def test_aliases(self, tmpdir):
 
         fake_env(
